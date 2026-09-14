@@ -1,32 +1,29 @@
 import numpy as np
 
-def ray_segment_intersection(origin, direction, ax, ay, bx, by):
-    ox, oy = origin
-    dx, dy = direction
+def ray_segment_intersection(ox, oy, dx, dy, ax, ay, bx, by):
+    ox = ox[:, None]
+    oy = oy[:, None]
+    dx = dx[:, None]
+    dy = dy[:, None]
 
-    sx = bx - ax
-    sy = by - ay
-    denom = dx * sy - dy * sx
+    sx = bx - ax          # (m,)
+    sy = by - ay           # (m,)
+    denom = dx * sy - dy * sx   # (n, m)
 
     with np.errstate(divide='ignore', invalid='ignore'):
         t = ((ax - ox) * sy - (ay - oy) * sx) / denom
         u = ((ax - ox) * dy - (ay - oy) * dx) / denom
 
-    valid = (
-        (denom != 0) &
-        (t >= 0) &
-        (u >= 0) &
-        (u <= 1)
-    )
+    valid = (denom != 0) & (t >= 0) & (u >= 0) & (u <= 1)
 
-    if not np.any(valid):
-        return None, None
+    t_masked = np.where(valid, t, np.inf)
+    best_index = np.argmin(t_masked, axis=1)
+    best_t = t_masked[np.arange(t_masked.shape[0]), best_index]
 
-    t_valid = t[valid]
-    best_index = np.argmin(t_valid)
-    best_t = t_valid[best_index]
+    hit = np.isfinite(best_t)
+    best_t = np.where(hit, best_t, np.nan)
 
-    px = ox + best_t * dx
-    py = oy + best_t * dy
+    px = np.where(hit, ox[:, 0] + best_t * dx[:, 0], np.nan)
+    py = np.where(hit, oy[:, 0] + best_t * dy[:, 0], np.nan)
 
-    return best_t, (px, py)
+    return best_t, px, py

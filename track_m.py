@@ -26,16 +26,13 @@ def caclDistance(ox, oy, dx, dy):
     origin = np.array([ox, oy])
     direction = np.array([dx, dy])
 
-    d_i, point_i = math_functions.ray_segment_intersection(origin, direction, inner_x1, inner_y1, inner_x2, inner_y2)
-    d_o, point_o = math_functions.ray_segment_intersection(origin, direction, outer_x1, outer_y1, outer_x2, outer_y2)
+    d_i, pxi, pyi = math_functions.ray_segment_intersection(ox, oy, dx, dy, inner_x1, inner_y1, inner_x2, inner_y2)
+    d_o, pxo, pyo = math_functions.ray_segment_intersection(ox, oy, dx, dy, outer_x1, outer_y1, outer_x2, outer_y2)
 
-    if d_i is None and d_o is None:
-        return None, None, None
-    if d_i is None:
-        return d_o, point_o[0], point_o[1]
-    if d_o is None:
-        return d_i, point_i[0], point_i[1]
+    use_inner = np.where(np.isnan(d_i), False, np.where(np.isnan(d_o), True, d_i < d_o))
 
-    if d_i < d_o:
-        return d_i, point_i[0], point_i[1]
-    return d_o, point_o[0], point_o[1]
+    dist = np.where(use_inner, d_i, d_o)
+    px = np.where(use_inner, pxi, pxo)
+    py = np.where(use_inner, pyi, pyo)
+
+    return dist, px, py

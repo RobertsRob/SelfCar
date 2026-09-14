@@ -4,7 +4,8 @@ import track_m
 
 def drawLine(screen, segment, color=(255, 0, 0)):
     x1, y1, x2, y2 = segment
-    pygame.draw.line(screen, color, to_screen(x1, y1), to_screen(x2, y2), 2)
+    if x1 is not None and y1 is not None and x2 is not None and y2 is not None:
+        pygame.draw.line(screen, color, to_screen(x1, y1), to_screen(x2, y2), 2)
 
 def to_screen(x, y):
     return (config.WIDTH // 2 + x, config.HEIGHT // 2 - y)
@@ -22,6 +23,7 @@ def drawTrack(screen):
         x2, y2 = track_m.outer_x2[i], track_m.outer_y2[i]
         drawLine(screen, (x1, y1, x2, y2))
 
-def drawDot(screen, pos, r, color):
+def drawDot(screen, pos, r, color=(255, 0, 0)):
     x, y = pos
-    pygame.draw.circle(screen, (255, 255, 0), to_screen(x, y), r)
+    if x is not None and y is not None:
+        pygame.draw.circle(screen, color, to_screen(x, y), r)
