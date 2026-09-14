@@ -9,6 +9,7 @@ SDX = -1
 SDY = 0.2
 INIT_SPEED = 2
 N = 1
+SIDE_SENDOR_LENGTH = 150
 
 # Map config
 SEGMENT_N = 1000

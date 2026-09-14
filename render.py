@@ -2,9 +2,9 @@ import pygame
 import config
 import track_m
 
-def drawLine(screen, segment):
+def drawLine(screen, segment, color=(255, 0, 0)):
     x1, y1, x2, y2 = segment
-    pygame.draw.line(screen, (255, 0, 0), to_screen(x1, y1), to_screen(x2, y2), 2)
+    pygame.draw.line(screen, color, to_screen(x1, y1), to_screen(x2, y2), 2)
 
 def to_screen(x, y):
     return (config.WIDTH // 2 + x, config.HEIGHT // 2 - y)
