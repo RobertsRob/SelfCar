@@ -25,6 +25,3 @@ def drawTrack(screen):
 def drawDot(screen, pos, r, color):
     x, y = pos
     pygame.draw.circle(screen, (255, 255, 0), to_screen(x, y), r)
-    # d, px, py = track_m.caclDistance(car_x, car_y, car_dx, car_dy)
-    # render.drawLine(screen, (car_x, car_y, px, py))
-    # pygame.draw.circle(screen, (100, 255, 100), render.to_screen(px, py), 6)

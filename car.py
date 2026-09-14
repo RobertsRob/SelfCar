@@ -1,5 +1,6 @@
 import numpy as np
 import render
+import track_m
 
 class Cars:
     def __init__(self, n, sx, sy, sdx, sdy, init_speed):
@@ -13,4 +14,12 @@ class Cars:
     def update(self, screen):
         for i in range(self.n):
             render.drawDot(screen, (self.x[i], self.y[i]), 8, (255, 255, 0))
-        pass
+            d, px, py = track_m.caclDistance(self.x[i], self.y[i], self.dx[i], self.dy[i])
+            render.drawLine(screen, (self.x[i], self.y[i], px, py))
+            render.drawDot(screen, (px, py), 6, (100, 255, 100))
+
+    def angleToDirectrion(self, angle):
+        dx = np.cos(angle)
+        dy = np.sin(angle)
+        return dx, dy
+        

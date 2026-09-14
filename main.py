@@ -23,10 +23,15 @@ while running:
     render.drawTrack(screen)
     cars.update(screen)
 
-    # render.drawDot(screen, (car_x, car_y), 8, (255, 255, 0))
-    # d, px, py = track_m.caclDistance(car_x, car_y, car_dx, car_dy)
-    # render.drawLine(screen, (car_x, car_y, px, py))
-    # pygame.draw.circle(screen, (100, 255, 100), render.to_screen(px, py), 6)
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        print(1)
+    if keys[pygame.K_RIGHT]:
+        print(2)
+    if keys[pygame.K_UP]:
+        print(3)
+    if keys[pygame.K_DOWN]:
+        print(4)
 
     pygame.display.update()
     clock.tick(60)
