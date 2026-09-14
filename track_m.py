@@ -1,8 +1,9 @@
 import numpy as np
 import math_functions
 import math
+import config
 
-theta = np.linspace(0, 2 * np.pi, 500, endpoint=False)
+theta = np.linspace(0, 2 * np.pi, config.SEGMENT_N // 2, endpoint=False)
 wobble = 30 * np.sin(3 * theta) + 24 * np.sin(4.5 * theta)
 
 r_inner = 180 + wobble
