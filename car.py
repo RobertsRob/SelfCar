@@ -14,11 +14,11 @@ class Cars:
         self.main_sensor_length = config.MAIN_SENSOR_LENGTH
         self.side_sensor_length = config.SIDE_SENSOR_LENGTH
         
-    def update(self, screen):
+    def update(self, screen, dt):
 
         # Pos update  ---------------
-        self.x += self.dx * self.v
-        self.y += self.dy * self.v
+        self.x += self.dx * self.v * dt
+        self.y += self.dy * self.v * dt
 
         # Sensor math ---------------
         d, px, py = track_m.caclDistance(self.x, self.y, self.dx, self.dy)
@@ -53,4 +53,9 @@ class Cars:
     
     def directionToAngle(self, dx, dy):
         return np.arctan2(dy, dx)
+
+    def steerAll(self, deg, dt):
+        self.dx, self.dy = self.angleToDirectrion(self.directionToAngle(self.dx, self.dy) + np.deg2rad(deg * dt))
+
+    
         

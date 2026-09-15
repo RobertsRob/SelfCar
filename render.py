@@ -27,3 +27,15 @@ def drawDot(screen, pos, r, color=(255, 0, 0)):
     x, y = pos
     if x is not None and y is not None:
         pygame.draw.circle(screen, color, to_screen(x, y), r)
+
+updateN = 0
+ludt = 1
+def displayFPS(screen, dt):
+    global updateN
+    global ludt
+    updateN += 1
+    font = pygame.font.Font(None, 36)
+    text = font.render(str(ludt), True, (255, 255, 255))
+    screen.blit(text, (20, 20))
+    if updateN % (config.MAX_FPS // 4) == 0:
+        ludt = round(1 / dt, 1)

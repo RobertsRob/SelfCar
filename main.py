@@ -16,24 +16,27 @@ car_dx, car_dy = (-1, -0.2)
 cars = car.Cars(config.N, config.SX, config.SY, config.SDX, config.SDY, config.INIT_SPEED)
 
 while running:
+    dt = clock.tick(config.MAX_FPS) / 1000
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     render.drawTrack(screen)
-    cars.update(screen)
+    cars.update(screen, dt)
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        print(1)
-    if keys[pygame.K_RIGHT]:
-        print(2)
     if keys[pygame.K_UP]:
-        print(3)
+        print("UP")
     if keys[pygame.K_DOWN]:
-        print(4)
+        print("DOWN")
+    if keys[pygame.K_RIGHT]:
+        cars.steerAll(-config.ROT_SPEED, dt)
+    if keys[pygame.K_LEFT]:
+        cars.steerAll(config.ROT_SPEED, dt)
+
+    render.displayFPS(screen, dt)
 
     pygame.display.update()
-    clock.tick(60)
 
 pygame.quit()
