@@ -22,6 +22,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    screen.fill((0, 0, 0))
+
     render.drawTrack(screen)
     cars.update(screen, dt)
 
