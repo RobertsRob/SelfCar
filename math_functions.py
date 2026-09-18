@@ -27,3 +27,32 @@ def ray_segment_intersection(ox, oy, dx, dy, ax, ay, bx, by):
     py = torch.where(hit, oy[:, 0] + best_t * dy[:, 0], torch.nan)
 
     return best_t, px, py
+
+
+def circle_segment_intersection(ox, oy, dx, dy, cx, cy, r):
+    cx = torch.atleast_1d(torch.as_tensor(cx, device=ox.device, dtype=ox.dtype))
+    cy = torch.atleast_1d(torch.as_tensor(cy, device=ox.device, dtype=ox.dtype))
+    r = torch.atleast_1d(torch.as_tensor(r, device=ox.device, dtype=ox.dtype))
+
+    cx = cx[:, None]
+    cy = cy[:, None]
+    r = r[:, None]
+
+    ox = ox[None, :]
+    oy = oy[None, :]
+    dx = dx[None, :]
+    dy = dy[None, :]
+
+    fx = cx - ox
+    fy = cy - oy
+
+    denom = dx * dx + dy * dy
+
+    t = torch.where(denom != 0, (fx * dx + fy * dy) / denom, torch.zeros_like(denom))
+
+    t = torch.clamp(t, 0.0, 1.0)
+    px = ox + t * dx
+    py = oy + t * dy
+    dist_sq = (cx - px) ** 2 + (cy - py) ** 2
+
+    return dist_sq <= r * r

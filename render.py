@@ -23,6 +23,16 @@ def drawTrack(screen):
     for i in range(len(track_m.render_outer_x1)):
         drawLine(screen, (track_m.render_outer_x1[i], track_m.render_outer_y1[i], track_m.render_outer_x2[i], track_m.render_outer_y2[i]))
 
+def drawCheckpoints(screen):
+    for i in range(len(track_m.render_inner_x1)):
+        drawLine(screen, (track_m.render_checkpoints_x1[i], track_m.render_checkpoints_y1[i], track_m.render_checkpoints_x2[i], track_m.render_checkpoints_y2[i]), (0, 100, 0))
+
+
+def drawText(screen, text, px, py):
+    font = pygame.font.Font(None, 36)
+    text_r = font.render(text, True, (255, 255, 255))
+    screen.blit(text_r, (px, py))
+
 
 updateN = 0
 ludt = 1
@@ -31,7 +41,7 @@ def displayFPS(screen, dt):
     global ludt
     updateN += 1
     font = pygame.font.Font(None, 36)
-    text = font.render(str(ludt), True, (255, 255, 255))
+    text = font.render("fps: " + str(ludt), True, (255, 255, 255))
     screen.blit(text, (20, 20))
     if updateN % (config.MAX_FPS // 4) == 0:
         ludt = round(1 / dt, 1)

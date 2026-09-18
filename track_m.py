@@ -38,6 +38,16 @@ render_outer_y1 = outer_y1.cpu().numpy()
 render_outer_x2 = outer_x2.cpu().numpy()
 render_outer_y2 = outer_y2.cpu().numpy()
 
+checkpoints_x1 = torch.cat([inner_x1, inner_x2])
+checkpoints_y1 = torch.cat([inner_y1, inner_y2])
+checkpoints_x2 = torch.cat([outer_x1, outer_x2])
+checkpoints_y2 = torch.cat([outer_y1, outer_y2])
+
+render_checkpoints_x1 = checkpoints_x1.cpu().numpy()
+render_checkpoints_y1 = checkpoints_y1.cpu().numpy()
+render_checkpoints_x2 = checkpoints_x2.cpu().numpy()
+render_checkpoints_y2 = checkpoints_y2.cpu().numpy()
+
 
 def caclDistance(ox, oy, dx, dy):
 
@@ -59,3 +69,47 @@ def caclDistance(ox, oy, dx, dy):
     py = torch.where(use_inner, pyi, pyo)
 
     return dist, px, py
+
+
+def check_collision(cx, cy, r):
+    inner_collision = math_functions.circle_segment_intersection(
+        inner_x1,
+        inner_y1,
+        inner_x2 - inner_x1,
+        inner_y2 - inner_y1,
+        cx,
+        cy,
+        r
+    )
+    inner_collision = torch.any(inner_collision, dim=1)
+
+    outer_collision = math_functions.circle_segment_intersection(
+        outer_x1,
+        outer_y1,
+        outer_x2 - outer_x1,
+        outer_y2 - outer_y1,
+        cx,
+        cy,
+        r
+    )
+    outer_collision = torch.any(outer_collision, dim=1)
+
+    return inner_collision | outer_collision
+
+
+def check_checkpoint_collision(cx, cy, r):
+    checkpoint_collision = math_functions.circle_segment_intersection(
+        checkpoints_x1,
+        checkpoints_y1,
+        checkpoints_x2 - checkpoints_x1,
+        checkpoints_y2 - checkpoints_y1,
+        cx,
+        cy,
+        r
+    )
+
+    any_collision = torch.any(checkpoint_collision, dim=1)
+    checkpoint_idx = torch.argmax(checkpoint_collision.to(torch.int64), dim=1)
+    checkpoint_idx = torch.where(any_collision, checkpoint_idx, torch.full_like(checkpoint_idx, -1))
+
+    return checkpoint_idx

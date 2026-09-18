@@ -25,6 +25,7 @@ while running:
     screen.fill((0, 0, 0))
 
     render.drawTrack(screen)
+    render.drawCheckpoints(screen)
     cars.update(screen, dt)
 
     keys = pygame.key.get_pressed()
