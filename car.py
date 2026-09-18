@@ -3,11 +3,13 @@ import numpy as np
 import render
 import track_m
 import config
+import car_net
 
 class Cars:
-    def __init__(self, n, sx, sy, sdx, sdy, init_speed):
+    def __init__(self, n, sx, sy, sdx, sdy, init_speed, base_model=None):
         self.device = torch.device("cuda")
         self.n = n
+        self.ri = 0
         self.x = torch.full((n,), sx, dtype=torch.float32, device=self.device)
         self.y = torch.full((n,), sy, dtype=torch.float32, device=self.device)
         self.dx = torch.full((n,), sdx, dtype=torch.float32, device=self.device)
@@ -17,14 +19,26 @@ class Cars:
         self.side_sensor_length = config.SIDE_SENSOR_LENGTH
         self.alive = torch.ones(self.n, dtype=torch.bool, device=self.device)
         self.points = torch.full((n,), 0, dtype=torch.float32, device=self.device)
-        self.prev_checkpoint_id = torch.full((n,), 0, dtype=torch.float32, device=self.device)
-        self.prev_wrong_checkpoint_id = torch.full((n,), 0, dtype=torch.float32, device=self.device)
-        
-    def update(self, screen, dt):
+        self.prev_checkpoint_id = torch.zeros(n, dtype=torch.long, device=self.device)
+        self.prev_wrong_checkpoint_id = torch.zeros(n, dtype=torch.long, device=self.device)
+        self.reward = torch.zeros(self.n, dtype=torch.float32, device=self.device)
+        self.lap_count = torch.zeros(self.n, dtype=torch.float32, device=self.device)
 
-        # Pos update  ---------------
-        self.x += self.dx * self.v * dt
-        self.y += self.dy * self.v * dt
+        self.models = []
+
+        for i in range(n):
+            model = car_net.CarNet().to(self.device)
+            if base_model is not None:
+                model.load_state_dict(base_model)
+                if i != 0:
+                    with torch.no_grad():
+                        for param in model.parameters():
+                            param += torch.randn_like(param) * config.MUTATION_STRENGTH
+
+            self.models.append(model)
+        
+    def update(self, screen, dt, time_from_start):
+        self.reward = torch.zeros(self.n, dtype=torch.float32, device=self.device)
 
         # Sensor math ---------------
         d, px, py = track_m.caclDistance(self.x, self.y, self.dx, self.dy)
@@ -38,16 +52,51 @@ class Cars:
         lpxl, lpyl = dxl * self.side_sensor_length + self.x, dyl * self.side_sensor_length + self.y
 
         collision = track_m.check_collision(self.x, self.y, config.CAR_R)
-        self.points = torch.where(collision, self.points - 1000, self.points)
+        self.points = torch.where(collision, self.points - 10, self.points)
+        self.reward = torch.where(collision, self.reward - 10, self.reward)
         self.alive &= ~collision
 
         checkpoint_id = track_m.check_checkpoint_collision(self.x, self.y, config.CAR_R)
-        self.crossedCheckpoint(checkpoint_id)
+        checkpoint_id = torch.where(self.alive, checkpoint_id, torch.full_like(checkpoint_id, -1))
+        self.crossedCheckpoint(checkpoint_id, time_from_start)
+
+        # Neural network
+        observations = torch.stack([
+            torch.clamp(d, 0.0, self.main_sensor_length) / self.main_sensor_length,
+            torch.clamp(dr, 0.0, self.side_sensor_length) / self.side_sensor_length,
+            torch.clamp(dl, 0.0, self.side_sensor_length) / self.side_sensor_length,
+            self.dx,
+            self.dy
+        ], dim=1)
+
+        actions = torch.zeros((self.n, 2), device=self.device)
+
+        for i in range(self.n):
+            if self.alive[i].item():
+                actions[i] = self.models[i](observations[i:i+1])[0]
+
+        steering = actions[:, 0]
+        self.steerAll(steering, dt)
+
+        # Pos update  ---------------
+        self.x = torch.where(self.alive, self.x + self.dx * self.v * dt, self.x)
+        self.y = torch.where(self.alive, self.y + self.dy * self.v * dt, self.y)
 
         # Render ---------------
-        display_data = torch.stack([self.x[0], self.y[0], rpx[0], rpy[0], lpxr[0], lpyr[0], lpxl[0], lpyl[0], px[0], py[0], pxr[0], pyr[0], pxl[0], pyl[0]]).detach().cpu().numpy()
+
+        alive_indices = torch.where(self.alive)[0]
+        
+        for i in alive_indices:
+            x = self.x[i].item()
+            y = self.y[i].item()
+            render.drawDot(screen, (x, y), config.CAR_R, (0, 0, 100))
+
+        alive_points = torch.where(self.alive, self.points, torch.tensor(float("-inf"), device=self.points.device))
+        self.ri = torch.argmax(alive_points).item()
+        
+        display_data = torch.stack([self.x[self.ri], self.y[self.ri], rpx[self.ri], rpy[self.ri], lpxr[self.ri], lpyr[self.ri], lpxl[self.ri], lpyl[self.ri], px[self.ri], py[self.ri], pxr[self.ri], pyr[self.ri], pxl[self.ri], pyl[self.ri]]).detach().cpu().numpy()
         (x, y, rx, ry, lrx, lry, llx, lly, hit_x, hit_y, hit_rx, hit_ry, hit_lx, hit_ly) = display_data
-        points_data = self.points[0].detach().cpu().numpy()
+        points_data = self.points[self.ri].detach().cpu().numpy()
 
         render.drawLine(screen, (x, y, rx, ry), (0, 255, 0))
         render.drawLine(screen, (x, y, lrx, lry), (0, 255, 0))
@@ -64,6 +113,7 @@ class Cars:
         render.drawDot(screen, (x, y), config.CAR_R, (255, 0, 0))
         render.drawText(screen, "p: " + str(points_data), 20, 40)
 
+        
 
     def angleToDirectrion(self, angle):
         dx = torch.cos(angle)
@@ -73,15 +123,14 @@ class Cars:
     def directionToAngle(self, dx, dy):
         return torch.atan2(dy, dx)
 
-    def steerAll(self, deg, dt):
+
+    def steerAll(self, steering, dt):
         angle = self.directionToAngle(self.dx, self.dy)
-        angle += torch.deg2rad(
-            torch.tensor(deg * dt, device=self.device)
-        )
+        angle += torch.deg2rad(steering * config.ROT_SPEED) * dt
         self.dx, self.dy = self.angleToDirectrion(angle)
 
     
-    def crossedCheckpoint(self, checkpoint_id):
+    def crossedCheckpoint(self, checkpoint_id, time_from_start):
         max_checkpoint = config.SEGMENT_N // 2 - 1
 
         no_collision = checkpoint_id == -1
@@ -105,8 +154,29 @@ class Cars:
 
         delta = torch.zeros_like(self.points)
         delta = torch.where(advanced, torch.full_like(self.points, 1.0), delta)
-        delta = torch.where(lap_completed, torch.full_like(self.points, 1.0), delta)
+        delta = torch.where(lap_completed, 100.0 / time_from_start, delta)
         delta = torch.where(regressed, torch.full_like(self.points, -1.0), delta)
-        # returning stays at delta = 0, same as no_collision/same
+
+        self.lap_count += lap_completed.to(self.lap_count.dtype)
 
         self.points += delta
+        self.reward += delta
+
+        self.alive &= self.lap_count < config.LAP_AMOUNT
+
+    def reset(self):
+        self.x.fill_(config.SX)
+        self.y.fill_(config.SY)
+
+        self.dx.fill_(config.SDX)
+        self.dy.fill_(config.SDY)
+
+        self.v.fill_(config.INIT_SPEED)
+
+        self.alive.fill_(True)
+        self.points.zero_()
+        self.reward.zero_()
+
+        self.prev_checkpoint_id.fill_(0)
+        self.prev_wrong_checkpoint_id.fill_(0)
+        self.lap_count.fill_(0)
