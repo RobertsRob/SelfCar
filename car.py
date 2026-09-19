@@ -116,7 +116,7 @@ class Cars:
         render.drawDot(screen, (hit_lx, hit_ly), 6, (255, 255, 255))
 
         render.drawDot(screen, (x, y), config.CAR_R, (255, 0, 0))
-        render.drawText(screen, "p: " + str(points_data), 20, 40)
+        render.drawText(screen, "points: " + str(round(float(points_data), 1)), 20, 45)
 
         
 

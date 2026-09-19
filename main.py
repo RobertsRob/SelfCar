@@ -5,6 +5,7 @@ import render
 import torch
 import copy
 import time
+import score_graph
 
 pygame.init()
 
@@ -27,7 +28,10 @@ def resetGen():
     best_index = torch.argmax(cars.points).item()
     best_model = copy.deepcopy(cars.models[best_index].state_dict())
     best_score = cars.points[best_index].item()
+
     print(f"Generation {generation} finished | " f"Best score: {best_score}")
+    score_graph.graph_data_update(best_score)
+
     generation += 1
     cars = car.Cars(config.N, config.SX, config.SY, config.SDX, config.SDY, config.INIT_SPEED, best_model)
     updates_from_start = 0
@@ -58,7 +62,13 @@ while running:
     if keys[pygame.K_r]:
         resetGen()
 
+    
     render.displayFPS(screen, dt)
+    render.drawText(screen, "generation: " + str(generation), 20, 70)
+    render.drawText(screen, "alive: " + str(cars.alive.sum().item()) + "/" + str(config.N), 20, 95)
+    score_graph.graph_draw(screen)
+    
     pygame.display.update()
+   
 
 pygame.quit()
