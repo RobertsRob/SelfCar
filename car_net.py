@@ -6,7 +6,8 @@ class CarNet(nn.Module):
         super().__init__()
 
         self.network = nn.Sequential(
-            nn.Linear(5, 32),
+            nn.Linear(3, 32),
+            # nn.Linear(5, 32),
             nn.ReLU(),
 
             nn.Linear(32, 32),
