@@ -45,3 +45,14 @@ def displayFPS(screen, dt):
     screen.blit(text, (20, 20))
     if updateN % (config.MAX_FPS // 4) == 0:
         ludt = round(1 / dt, 1)
+
+
+def drawPause(screen):
+    SW = config.WIDTH
+    SH = config.HEIGHT
+    w, h = 400, 140
+    pygame.draw.rect(screen, (0, 0, 0), (SW / 2 - w / 2, SH / 2 - h / 2, w, h))
+    pygame.draw.rect(screen, (255, 255, 255), (SW / 2 - w / 2, SH / 2 - h / 2, w, h), 2)
+    font = pygame.font.Font(None, 100)
+    text = font.render("Paused", True, (255, 255, 255))
+    screen.blit(text, (SW / 2 - w / 4 - 25, SH / 2 - h / 4))
