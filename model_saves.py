@@ -95,6 +95,6 @@ def ret_choosen():
     path = os.path.join(config.MODEL_DIR, filename)
 
     try:
-        return torch.load(path, map_location="cuda")
+        return torch.load(path, map_location=config.DEVICE)
     except FileNotFoundError:
         return None

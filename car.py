@@ -7,7 +7,7 @@ import car_net
 
 class Cars:
     def __init__(self, n, sx, sy, sdx, sdy, init_speed, base_model=None):
-        self.device = torch.device("cuda")
+        self.device = torch.device(config.DEVICE)
         self.n = n
         self.ri = 0
         self.x = torch.full((n,), sx, dtype=torch.float32, device=self.device)

@@ -2,7 +2,7 @@ import torch
 import math_functions
 import config
 
-device = torch.device("cuda")
+device = torch.device(config.DEVICE)
 
 theta = torch.linspace(0, 2 * torch.pi, config.SEGMENT_N // 2 + 1, device=device, dtype=torch.float32)[:-1]
 wobble = (30 * torch.sin(3 * theta) + 24 * torch.sin(4.5 * theta))
@@ -28,10 +28,21 @@ outer_y1 = outer_y
 outer_x2 = torch.roll(outer_x, -1)
 outer_y2 = torch.roll(outer_y, -1)
 
-render_inner_x1 = inner_x1.cpu().numpy()
-render_inner_y1 = inner_y1.cpu().numpy()
-render_inner_x2 = inner_x2.cpu().numpy()
-render_inner_y2 = inner_y2.cpu().numpy()
+px1 = torch.asarray([173, 0])
+py1 = torch.asarray([-50, -226])
+px2 = torch.asarray([210, 0])
+py2 = torch.asarray([-59, -266])
+
+if config.ADD_DIF:
+    render_inner_x1 = torch.cat([inner_x1, px1]).cpu().numpy()
+    render_inner_y1 = torch.cat([inner_y1, py1]).cpu().numpy()
+    render_inner_x2 = torch.cat([inner_x2, px2]).cpu().numpy()
+    render_inner_y2 = torch.cat([inner_y2, py2]).cpu().numpy()
+else:
+    render_inner_x1 = inner_x1.cpu().numpy()
+    render_inner_y1 = inner_y1.cpu().numpy()
+    render_inner_x2 = inner_x2.cpu().numpy()
+    render_inner_y2 = inner_y2.cpu().numpy()
 
 render_outer_x1 = outer_x1.cpu().numpy()
 render_outer_y1 = outer_y1.cpu().numpy()
@@ -94,7 +105,19 @@ def check_collision(cx, cy, r):
     )
     outer_collision = torch.any(outer_collision, dim=1)
 
-    return inner_collision | outer_collision
+    dif_collision = math_functions.circle_segment_intersection(
+        px1,
+        py1,
+        px2 - px1,
+        py2 - py1,
+        cx,
+        cy,
+        r
+    )
+    dif_collision = torch.any(dif_collision, dim=1)
+    
+
+    return inner_collision | outer_collision | dif_collision
 
 
 def check_checkpoint_collision(cx, cy, r):
