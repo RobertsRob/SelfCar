@@ -105,19 +105,20 @@ def check_collision(cx, cy, r):
     )
     outer_collision = torch.any(outer_collision, dim=1)
 
-    dif_collision = math_functions.circle_segment_intersection(
-        px1,
-        py1,
-        px2 - px1,
-        py2 - py1,
-        cx,
-        cy,
-        r
-    )
-    dif_collision = torch.any(dif_collision, dim=1)
-    
-
-    return inner_collision | outer_collision | dif_collision
+    if config.ADD_DIF:
+        dif_collision = math_functions.circle_segment_intersection(
+            px1,
+            py1,
+            px2 - px1,
+            py2 - py1,
+            cx,
+            cy,
+            r
+        )
+        dif_collision = torch.any(dif_collision, dim=1)
+        return inner_collision | outer_collision | dif_collision
+    else:
+        return inner_collision | outer_collision
 
 
 def check_checkpoint_collision(cx, cy, r):

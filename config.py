@@ -20,7 +20,7 @@ MAIN_SENSOR_LENGTH = 250
 
 # Map config
 SEGMENT_N = 100
-ADD_DIF = True
+ADD_DIF = False
 
 # NN
 DEVICE = "cpu" # cpu or cuda
