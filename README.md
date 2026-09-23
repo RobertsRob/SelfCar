@@ -21,8 +21,9 @@ There are two ways to run this project:
 ## First option (recomended)
 This app uses python 3.14. How to run program using venv:
 1. `python -m venv .venv` - to create virtual enviroment
-2. `python -m pip install -r requirements.txt` - install libraries
-3. `python main.py` - run app
+2. `.venv\Scripts\Activate.ps1` - activate venv
+3. `python -m pip install -r requirements.txt` - install libraries
+4. `python main.py` - run app
 Enjoy app.
 
 ## Second option
