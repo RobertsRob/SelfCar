@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Self Car</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #000000;
+            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 70px 25px;
+        }
+
+        .game {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 50px;
+        }
+
+        h1 {
+            margin: 0 0 15px 0;
+            text-align: center;
+            font-size: 42px;
+        }
+
+        .description {
+            max-width: 650px;
+            margin: 0 auto 35px auto;
+            text-align: center;
+            line-height: 1.6;
+            color: #cccccc;
+        }
+
+        .download {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 40px auto;
+            padding: 14px 28px;
+            background: #ffffff;
+            color: #000000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #ffffff;
+        }
+
+        .download:hover {
+            background: #cccccc;
+        }
+
+        .instructions {
+            border-top: 1px solid #333333;
+            padding-top: 25px;
+        }
+
+        .instructions h2 {
+            font-size: 20px;
+            margin-top: 0;
+        }
+
+        .instructions ol {
+            line-height: 1.7;
+            padding-left: 25px;
+            color: #dddddd;
+        }
+
+        .windows {
+            margin-top: 25px;
+            padding: 15px;
+            background: #111111;
+            border-left: 4px solid #ffffff;
+            color: #dddddd;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+
+        <main class="game">
+
+            <h1>Self Car</h1>
+
+            <p class="description">
+                This is a program that allows you to train cars so that,
+                with limited perception of the track, they can learn to
+                drive using neural learning.
+            </p>
+
+            <a class="download" href="dist/SelfCar.zip" download>
+                Download Self Car
+            </a>
+
+            <section class="instructions">
+                <h2>How to run</h2>
+
+                <ol>
+                    <li>Download the ZIP file.</li>
+                    <li>Extract the ZIP file.</li>
+                    <li>Open the extracted folder.</li>
+                    <li>Run the <strong>.exe</strong> file.</li>
+                    <li>Watch training process!</li>
+                </ol>
+
+                <div class="windows">
+                    <strong>Windows Security warning:</strong><br>
+                    If Windows shows a blue window saying that it protected your PC,
+                    click <strong>More info</strong>, then click <strong>Run anyway</strong>.
+                </div>
+
+                <p>
+                    <strong>Platform:</strong> Windows only.
+                </p>
+            </section>
+
+        </main>
+
+        <div class="footer">
+            Self Car
+        </div>
+
+    </div>
+
+</body>
+</html>

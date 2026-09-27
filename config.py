@@ -1,0 +1,42 @@
+# Simulation
+DT_ON = False
+OFF_DT_CONST = 0.05
+
+# Screen
+WIDTH, HEIGHT = (1280, 720)
+MAX_FPS = 200
+
+# Cars config
+SX = 200
+SY = 170
+SDX = -1
+SDY = 0.2
+INIT_SPEED = 120
+ROT_SPEED = 250
+CAR_R = 15
+N = 200
+SIDE_SENSOR_LENGTH = 200
+MAIN_SENSOR_LENGTH = 250
+
+# Map config
+SEGMENT_N = 100
+ADD_DIF = False
+
+# NN
+DEVICE = "cpu" # cpu or cuda
+MUTATION_STRENGTH = 0.05 # 0.3
+LAP_AMOUNT = 3
+LAP_AMOUNT_UPDATES = 30000
+
+# Graph of scores
+GRAPH_POS_X = 20
+GRAPH_POS_Y = HEIGHT - 270
+GRAPH_W = 330
+GRAPH_H = 250
+
+# Saves
+MODEL_DIR = "models"
+SAVES_H = 243
+SAVES_W = 250
+SAVES_POS_X = WIDTH - SAVES_W - 20
+SAVES_POS_Y = 20
